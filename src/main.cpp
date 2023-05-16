@@ -2,6 +2,7 @@
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include <SPI.h>
+#include <stdint.h>
 
 // Uncomment according to your hardware type
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
@@ -15,16 +16,16 @@
 MD_Parola myDisplay = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
 // Define timekeeping data
-int hour24;
-int hour12;
-int min;
-int sec;
+uint8_t hour24;
+uint8_t hour12;
+uint8_t min;
+uint8_t sec;
 
 #define AM 0
 #define PM 1
 
 char merStr[] = "AM";
-int mer;
+uint8_t mer;
 
 char timeStr[] = "HH:MM:SS AM";
 
@@ -45,7 +46,7 @@ void setup()
     while (!Serial);  
     Serial.println("Begin");
 
-    hour24 = 23;
+    hour24 = 11;
     hour12 = 11;
     min    = 59;
     sec    = 50;
@@ -56,7 +57,7 @@ void loop()
 {
 
     // Build time str
-    snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d %s", hour12, min, sec, merStr);
+    snprintf(timeStr, sizeof(timeStr), "%02u:%02u:%02u %s", hour12, min, sec, merStr);
     //myDisplay.print(timeStr);
 
     Serial.println(timeStr);
