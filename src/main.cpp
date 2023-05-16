@@ -7,24 +7,26 @@
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 //#define HARDWARE_TYPE MD_MAX72XX::GENERIC_HW
 
-// Defining size, and output pins
+// Define size and output pins
 #define MAX_DEVICES 4
 #define CS_PIN 7
 
 // Create a new instance of the MD_Parola class with hardware SPI connection
 MD_Parola myDisplay = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
-int hour;
+// Define timekeeping data
+int hour24;
+int hour12;
 int min;
 int sec;
 
-int  mer;
-char merStr[2];
 #define AM 0
 #define PM 1
 
-// 8 characters: "HH:MM AM"
-char timeStr[8];
+char merStr[] = "AM";
+int mer;
+
+char timeStr[] = "HH:MM:SS AM";
 
 void setup()
 {
@@ -39,18 +41,14 @@ void setup()
     //myDisplay.displayClear();
     //myDisplay.setTextAlignment(PA_LEFT);
 
-    // Initialize time
-    hour = 12;
-    min  = 0;
-    sec  = 0;
-
-    mer = AM;
-    merStr[0] = 'A';
-    merStr[1] = 'M';
-
     Serial.begin(9600);
     while (!Serial);  
     Serial.println("Begin");
+
+    hour24 = 23;
+    hour12 = 11;
+    min    = 59;
+    sec    = 50;
 
 }
 
@@ -58,42 +56,44 @@ void loop()
 {
 
     // Build time str
-    snprintf(timeStr, sizeof(timeStr), "%d:%d %s", hour, min, merStr);
+    snprintf(timeStr, sizeof(timeStr), "%d:%d:%d %s", hour12, min, sec, merStr);
     //myDisplay.print(timeStr);
 
-    Serial.println("test");
+    Serial.println(timeStr);
 
     delay(1000);
 
     // Increment time
     sec++;
 
-    if (!(sec % 60))
+    if (sec >= 60)
     {
         sec = 0;
         min++;
     }
 
-    if (!(min % 60))
+    if (min >= 60)
     {
         min = 0;
-        hour++;
+        hour24++;
     }
 
-    if (!(hour % 12))
+    if (hour24 >= 24)
     {
-        hour = 12;
-        mer++;
+        hour24 = 0;
     }
 
-    if (!(mer % 2))
+    if (hour24 < 12)
     {
-        mer = 0;
+        mer = AM;
         merStr[0] = 'A';
+        hour12 = (hour24 < 1) ? (12) : (hour24);
     }
-    else
+    else // (hour24 >= 12)
     {
+        mer = PM;
         merStr[0] = 'P';
+        hour12 = (hour24 > 12) ? (hour24 - 12) : (hour24);
     }
 
 }
