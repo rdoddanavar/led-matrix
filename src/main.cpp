@@ -56,7 +56,7 @@ void loop()
 {
 
     // Build time str
-    snprintf(timeStr, sizeof(timeStr), "%d:%d:%d %s", hour12, min, sec, merStr);
+    snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d %s", hour12, min, sec, merStr);
     //myDisplay.print(timeStr);
 
     Serial.println(timeStr);
