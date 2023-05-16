@@ -30,14 +30,14 @@ void setup()
 {
 
     // Intialize the object
-    myDisplay.begin();
+    //myDisplay.begin();
 
     // Set the intensity (brightness) of the display (0-15)
-    myDisplay.setIntensity(0);
+    //myDisplay.setIntensity(0);
 
     // Clear the display
-    myDisplay.displayClear();
-    myDisplay.setTextAlignment(PA_LEFT);
+    //myDisplay.displayClear();
+    //myDisplay.setTextAlignment(PA_LEFT);
 
     // Initialize time
     hour = 12;
@@ -48,6 +48,10 @@ void setup()
     merStr[0] = 'A';
     merStr[1] = 'M';
 
+    Serial.begin(9600);
+    while (!Serial);  
+    Serial.println("Begin");
+
 }
 
 void loop()
@@ -55,7 +59,9 @@ void loop()
 
     // Build time str
     snprintf(timeStr, sizeof(timeStr), "%d:%d %s", hour, min, merStr);
-    myDisplay.print(timeStr);
+    //myDisplay.print(timeStr);
+
+    Serial.println("test");
 
     delay(1000);
 
