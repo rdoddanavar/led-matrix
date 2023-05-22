@@ -10,7 +10,7 @@
 
 // Define size and output pins
 #define MAX_DEVICES 4
-#define CS_PIN 7
+#define CS_PIN 10
 
 // Create a new instance of the MD_Parola class with hardware SPI connection
 MD_Parola myDisplay = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
@@ -27,42 +27,32 @@ uint8_t sec;
 char merStr[] = "AM";
 uint8_t mer;
 
-char timeStr[] = "HH:MM:SS AM";
+//char timeStr[] = "HH:MM:SS AM";
+char timeStr[] = "HH:MM:SS AM 0-0-0-0";
 
-void setup()
+// Define input pins
+#define BTN_HR_PIN   6
+#define BTN_MIN_PIN  7
+#define BTN_MER_PIN  8
+#define BTN_MODE_PIN 9
+
+uint8_t btnHrVal   = 0;
+uint8_t btnMinVal  = 0;
+uint8_t btnMerVal  = 0;
+uint8_t btnModeVal = 0;
+
+void read_buttons()
 {
 
-    // Intialize the object
-    //myDisplay.begin();
-
-    // Set the intensity (brightness) of the display (0-15)
-    //myDisplay.setIntensity(0);
-
-    // Clear the display
-    //myDisplay.displayClear();
-    //myDisplay.setTextAlignment(PA_LEFT);
-
-    Serial.begin(9600);
-    while (!Serial);  
-    Serial.println("Begin");
-
-    hour24 = 11;
-    hour12 = 11;
-    min    = 59;
-    sec    = 50;
+    btnHrVal   = digitalRead(BTN_HR_PIN  );
+    btnMinVal  = digitalRead(BTN_MIN_PIN );
+    btnMerVal  = digitalRead(BTN_MER_PIN );
+    btnModeVal = digitalRead(BTN_MODE_PIN);
 
 }
 
-void loop()
+void time_keep()
 {
-
-    // Build time str
-    snprintf(timeStr, sizeof(timeStr), "%02u:%02u:%02u %s", hour12, min, sec, merStr);
-    //myDisplay.print(timeStr);
-
-    Serial.println(timeStr);
-
-    delay(1000);
 
     // Increment time
     sec++;
@@ -96,5 +86,54 @@ void loop()
         merStr[0] = 'P';
         hour12 = (hour24 > 12) ? (hour24 - 12) : (hour24);
     }
+
+}
+
+void setup()
+{
+
+    // Intialize the object
+    //myDisplay.begin();
+
+    // Set the intensity (brightness) of the display (0-15)
+    //myDisplay.setIntensity(0);
+
+    // Clear the display
+    //myDisplay.displayClear();
+    //myDisplay.setTextAlignment(PA_LEFT);
+
+    Serial.begin(9600);
+    while (!Serial);  
+    Serial.println("Begin");
+
+    // Initialize time keeping
+    hour24 = 11;
+    hour12 = 11;
+    min    = 59;
+    sec    = 50;
+
+    // Setup input pins
+    pinMode(BTN_HR_PIN  , INPUT_PULLUP);
+    pinMode(BTN_MIN_PIN , INPUT_PULLUP);
+    pinMode(BTN_MER_PIN , INPUT_PULLUP);
+    pinMode(BTN_MODE_PIN, INPUT_PULLUP);
+
+}
+
+void loop()
+{
+
+    // Build time str
+    snprintf(timeStr, sizeof(timeStr), "%02u:%02u:%02u %s %u-%u-%u-%u",
+    hour12, min, sec, merStr, btnHrVal, btnMinVal, btnMerVal, btnModeVal);
+    //myDisplay.print(timeStr);
+
+    Serial.println(timeStr);
+
+    delay(1000); // Run at 10 Hz
+
+    read_buttons();
+
+    time_keep();
 
 }
