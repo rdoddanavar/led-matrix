@@ -41,13 +41,36 @@ uint8_t btnMinVal  = 0;
 uint8_t btnMerVal  = 0;
 uint8_t btnModeVal = 0;
 
+uint8_t count = 0;
+bool printTime = false;
+
 void read_buttons()
 {
 
-    btnHrVal   = digitalRead(BTN_HR_PIN  );
-    btnMinVal  = digitalRead(BTN_MIN_PIN );
-    btnMerVal  = digitalRead(BTN_MER_PIN );
-    btnModeVal = digitalRead(BTN_MODE_PIN);
+    btnHrVal   += !digitalRead(BTN_HR_PIN  );
+    btnMinVal  += !digitalRead(BTN_MIN_PIN );
+    btnMerVal  += !digitalRead(BTN_MER_PIN );
+    btnModeVal += !digitalRead(BTN_MODE_PIN);
+
+}
+
+void reset_buttons()
+{
+
+    btnHrVal   = 0;
+    btnMinVal  = 0;
+    btnMerVal  = 0;
+    btnModeVal = 0;
+
+}
+
+void set_buttons()
+{
+
+    btnHrVal   = (btnHrVal)   ? (1) : 0;
+    btnMinVal  = (btnMinVal)  ? (1) : 0;
+    btnMerVal  = (btnMerVal)  ? (1) : 0;
+    btnModeVal = (btnModeVal) ? (1) : 0;
 
 }
 
@@ -123,17 +146,28 @@ void setup()
 void loop()
 {
 
-    // Build time str
-    snprintf(timeStr, sizeof(timeStr), "%02u:%02u:%02u %s %u-%u-%u-%u",
-    hour12, min, sec, merStr, btnHrVal, btnMinVal, btnMerVal, btnModeVal);
-    //myDisplay.print(timeStr);
+    if (printTime)
+    {
+        // Build time str
+        snprintf(timeStr, sizeof(timeStr), "%02u:%02u:%02u %s %u-%u-%u-%u",
+        hour12, min, sec, merStr, btnHrVal, btnMinVal, btnMerVal, btnModeVal);
+        //myDisplay.print(timeStr);
+        Serial.println(timeStr);
+        printTime = false;
+        reset_buttons();
+    }
 
-    Serial.println(timeStr);
-
-    delay(1000); // Run at 10 Hz
+    delay(100); // Run at 10 Hz
+    count++;
 
     read_buttons();
 
-    time_keep();
+    if (count >= 10)
+    {
+        time_keep();
+        count = 0;
+        printTime = true;
+        set_buttons();
+    }
 
 }
